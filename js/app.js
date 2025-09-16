@@ -215,134 +215,135 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
   });
 });
-// ------- Login form (validation + show/hide) -------
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('loginForm');
-  if (!form) return;
 
-  const email = document.getElementById('loginEmail');
-  const pass  = document.getElementById('loginPassword');
+
+// سنة الفوتر (اختياري)
+document.addEventListener('DOMContentLoaded', () => {
+  const y = document.getElementById('year');
+  if (y) y.textContent = new Date().getFullYear();
+});
+
+/* تبديل إظهار/إخفاء كلمة السر */
+function togglePassword(inputId, btnEl){
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  const icon = btnEl?.querySelector('i');
+  if (icon){
+    icon.classList.toggle('fa-eye', !show);
+    icon.classList.toggle('fa-eye-slash', show);
+  }
+}
+
+/* أدوات مساعدة للأخطاء */
+function setErr(input, msg){
+  input.classList.add('error');
+  const msgEl = input.closest('.field')?.querySelector('.error-msg');
+  if (msgEl) msgEl.textContent = msg || '';
+}
+function clearErr(input){
+  input.classList.remove('error');
+  const msgEl = input.closest('.field')?.querySelector('.error-msg');
+  if (msgEl) msgEl.textContent = '';
+}
+
+/* فاحص إيميل بسيط مع ميزة checkValidity للمتصفح */
+function isEmailOK(input){
+  const v = input.value.trim().toLowerCase();
+  input.value = v;
+  return v !== '' && input.checkValidity();
+}
+
+/* منع الأرقام العربية في كلمات السر (سبب شائع للمشاكل) */
+function hasArabicDigits(str){
+  return /[٠-٩]/.test(str);
+}
+
+/* =========================
+   تهيئة صفحة Login
+   ========================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const form   = document.getElementById('loginForm');
+  if (!form) return; // لسنا في صفحة اللوج إن
+
+  const email  = document.getElementById('loginEmail');
+  const pass   = document.getElementById('loginPassword');
   const errBox = document.getElementById('loginError');
   const okBox  = document.getElementById('loginSuccess');
 
-  function setErr(input, msg){
-    input.classList.add('error');
-    const small = input.closest('.field').querySelector('.error-msg');
-    if (small) small.textContent = msg;
-  }
-  function clearErr(input){
-    input.classList.remove('error');
-    const small = input.closest('.field').querySelector('.error-msg');
-    if (small) small.textContent = '';
-  }
-
-  // show/hide password
-  const eyeBtn = form.querySelector('.eye-btn');
-  if (eyeBtn){
-    eyeBtn.addEventListener('click', () => {
-      const isPwd = pass.type === 'password';
-      pass.type = isPwd ? 'text' : 'password';
-      eyeBtn.innerHTML = isPwd ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
-    });
-  }
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    okBox.hidden = true;
-    errBox.hidden = true;
+    errBox.hidden = true; okBox.hidden = true;
 
     let ok = true;
 
-    // email
-    const emOK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
-    if (!emOK){ setErr(email, 'Please enter a valid email.'); ok = false; } else { clearErr(email); }
+    // تحقق الإيميل
+    if (!isEmailOK(email)) { setErr(email, 'Please enter a valid email.'); ok = false; }
+    else { clearErr(email); }
 
-    // password
-    if (pass.value.trim().length < 6){ setErr(pass, 'Password must be at least 6 characters.'); ok = false; }
+    // تحقق الباسوورد
+    const pv = pass.value.trim();
+    if (hasArabicDigits(pv)) { setErr(pass, 'Use English digits 0-9 in password.'); ok = false; }
+    else if (pv.length < 6) { setErr(pass, 'Password must be at least 6 characters.'); ok = false; }
     else { clearErr(pass); }
 
     if (!ok){ errBox.hidden = false; return; }
+
+    // نجاح (عرض رسالة فقط)
     okBox.hidden = false;
     form.reset();
   });
 });
-// ------- Register form (validation + show/hide) -------
+
+/* =========================
+   تهيئة صفحة Register
+   ========================= */
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('registerForm');
-  if (!form) return;
+  const form   = document.getElementById('registerForm');
+  if (!form) return; // لسنا في صفحة الرجستر
 
   const nameEl = document.getElementById('regName');
-  const emailEl = document.getElementById('regEmail');
-  const passEl  = document.getElementById('regPassword');
-  const confEl  = document.getElementById('regConfirm');
-  const termsEl = document.getElementById('terms');
+  const emailEl= document.getElementById('regEmail');
+  const passEl = document.getElementById('regPassword');
+  const confEl = document.getElementById('regConfirm');
+  const terms  = document.getElementById('terms');
 
   const errBox = document.getElementById('regError');
   const okBox  = document.getElementById('regSuccess');
 
-  function setErr(input, msg){
-    input.classList.add('error');
-    const small = input.closest('.field').querySelector('.error-msg');
-    if (small) small.textContent = msg;
-  }
-  function clearErr(input){
-    input.classList.remove('error');
-    const small = input.closest('.field').querySelector('.error-msg');
-    if (small) small.textContent = '';
-  }
-
-  // show/hide for both password fields
-  form.querySelectorAll('.eye-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-eye');
-      const input = document.getElementById(targetId);
-      const isPwd = input.type === 'password';
-      input.type = isPwd ? 'text' : 'password';
-      btn.innerHTML = isPwd ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
-    });
-  });
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    errBox.hidden = true;
-    okBox.hidden = true;
+    errBox.hidden = true; okBox.hidden = true;
 
     let ok = true;
 
-    // name
-    if (nameEl.value.trim().length < 3){
-      setErr(nameEl, 'Please enter at least 3 characters.');
-      ok = false;
-    } else { clearErr(nameEl); }
+    // الاسم
+    const nv = nameEl.value.trim();
+    if (nv.length < 3) { setErr(nameEl, 'Please enter at least 3 characters.'); ok = false; }
+    else { clearErr(nameEl); }
 
-    // email
-    const emOK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim());
-    if (!emOK){ setErr(emailEl, 'Please enter a valid email.'); ok = false; }
+    // الإيميل
+    if (!isEmailOK(emailEl)) { setErr(emailEl, 'Please enter a valid email.'); ok = false; }
     else { clearErr(emailEl); }
 
-    // password
-    if (passEl.value.trim().length < 6){
-      setErr(passEl, 'Password must be at least 6 characters.');
-      ok = false;
-    } else { clearErr(passEl); }
+    // الباسوورد
+    const pv = passEl.value.trim();
+    const cv = confEl.value.trim();
+    if (hasArabicDigits(pv) || hasArabicDigits(cv)) { setErr(passEl, 'Use English digits 0-9 in password.'); ok = false; }
+    else if (pv.length < 6)  { setErr(passEl, 'Password must be at least 6 characters.'); ok = false; }
+    else { clearErr(passEl); }
 
-    // confirm
-    if (confEl.value !== passEl.value || confEl.value.trim() === ''){
-      setErr(confEl, 'Passwords do not match.');
-      ok = false;
-    } else { clearErr(confEl); }
+    // تأكيد
+    if (cv !== pv || cv === '') { setErr(confEl, 'Passwords do not match.'); ok = false; }
+    else { clearErr(confEl); }
 
-    // terms
-    if (!termsEl.checked){
-      // نلوّن النص كتنبيه بسيط
-      termsEl.closest('.checkbox').style.filter = 'drop-shadow(0 0 4px rgba(255,105,180,.6))';
-      ok = false;
-      setTimeout(() => termsEl.closest('.checkbox').style.filter = '', 1000);
-    }
+    // الموافقة
+    if (!terms.checked) ok = false;
 
     if (!ok){ errBox.hidden = false; return; }
 
-    okBox.hidden = false;   // Demo only
+    okBox.hidden = false;
     form.reset();
   });
 });

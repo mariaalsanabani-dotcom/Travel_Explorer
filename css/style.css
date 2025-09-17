@@ -764,5 +764,90 @@ padding: 0 16px;
   .auth-card{ padding: 1.25rem 1rem; }
   .auth-row{ flex-direction:column; align-items:flex-start; }
 }
+/* الوضع الافتراضي على الشاشات الكبيرة */
+.nav-toggle{
+  display: none;               /* مخفي على الكبير */
+  background: transparent;
+  border: 0;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #bfe8ff;              /* تأكدي اللون واضح */
+  z-index: 1001;               /* فوق */
+}
+
+/* قائمة الديسكتوب تظهر كالمعتاد */
+.menu{
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+/* الهاتف/التابلت */
+@media (max-width: 992px){
+  .nav-toggle{
+    display: inline-flex;      /* يظهر الزر */
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+  }
+
+  .menu{
+    display: none;             /* اخفي القائمة افتراضيًا */
+    position: absolute;
+    right: 16px;
+    top: 64px;
+    min-width: 220px;
+    padding: 12px;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+  }
+
+  .menu.open{
+    display: flex;             /* تظهر عند الفتح */
+  }
+}
+/* ===== Mobile gutters (تباعد عن الأطراف) ===== */
+:root{
+  /* 12px حد أدنى – تكبر تلقائيًا حسب عرض الشاشة */
+  --gutter: clamp(12px, 4vw, 24px);
+}
+
+/* منع أي تمرير أفقي لو شيء طالع برة */
+body{ overflow-x: hidden; }
+
+/* حطّي نفس الـ gutter لكل الحاويات الشائعة */
+header .nav.container,
+main .container,
+section.container,
+footer .container{
+  width: min(1200px, 100%);
+  margin-inline: auto;               /* توسيط المحتوى */
+  padding-inline: var(--gutter);     /* التباعد يمين/يسار */
+}
+
+/* لو عندك أقسام بدون .container داخل main */
+main > section:not(.no-gutters){
+  padding-inline: var(--gutter);
+}
+
+/* مسافة رأسية بين الأقسام */
+section{ margin-block: clamp(16px, 4vw, 28px); }
+
+/* البانر (الهيرو) يظل عريض، لكن نصه الداخلي يأخذ gutter */
+.hero{ padding-inline: 0; }
+.hero .container{ padding-inline: var(--gutter); }
+
+/* شبكات الكروت – بس لضمان ما تلتصق */
+.cards-grid, .grid, .popular-grid{
+  gap: 16px;
+}
 
 
